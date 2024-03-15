@@ -1,0 +1,52 @@
+//Design Code
+module d_ffpe(output reg q,output wire qbar,input clk,d,pre,clr);
+  reg q1;
+  always@(posedge clk)
+    begin
+      q1=q;
+      q1=d;
+    end
+  assign q = pre ? 1'b1	: (clr ? 1'b0 : q1);
+  assign qbar=~q;
+endmodule
+
+//Test Bench Code
+module tb();
+  wire q,qbar;
+  reg clk,d;
+  reg pre,clr;
+  d_ffpe DUT(q,qbar,clk,d,pre,clr);
+  
+  initial
+    begin
+      clk=1'b0;
+      forever #5 clk=~clk;
+    end
+  
+  initial
+    begin
+       pre = 1'b1;
+      #20;
+      pre = 1'b0; // For normal FF operaiton Preset and Clear have to be made 0
+      clr = 1'b0;
+      d=1'b0;
+      #20;
+      d=1'b1;
+      #20;
+      d=1'b0;
+      #10;
+      $finish;
+    end
+  
+  initial
+    begin
+      $dumpfile("test.vcd");
+      $dumpvars(1);
+    end
+  
+  initial
+    begin
+      $timeformat(-9,0,"ns",10);
+      $monitor("time=%0t,clk=%b,d=%b,q=%b,qbar=%b,pre=%0b,clr=%0b",$time,clk,d,q,qbar,pre,clr);
+    end
+endmodule
